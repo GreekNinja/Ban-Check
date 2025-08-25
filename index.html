@@ -1,257 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Epic Games Sanction Lookup | Advanced</title>
-    <style>
-        /* --- Gaming Inspired Color Palette & Variables --- */
-        :root {
-            --bg-animated-1: #1a0b3a;
-            --bg-animated-2: #3a1e6f;
-            --bg-animated-3: #0d1117;
-            --bg-animated-4: #4a2d8a;
-            --glass-bg: rgba(22, 27, 34, 0.6);
-            --border-color: rgba(88, 166, 255, 0.3);
-            --text-primary: #e6edf3;
-            --text-secondary: #c9d1d9;
-            --accent-primary: #79c0ff;
-            --accent-glow: #a5d6ff;
-            --color-success: #2ea043;
-            --color-success-glow: #3ad856;
-            --color-danger: #f85149;
-            --color-warning: #ffab40;
-            --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
-            --border-radius: 12px;
-            --animation-speed: 0.3s;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epic Games Sanction Lookup | Advanced</title>
+<style>
+    :root {
+        --bg-animated-1: #1a0b3a;
+        --bg-animated-2: #3a1e6f;
+        --bg-animated-3: #0d1117;
+        --bg-animated-4: #4a2d8a;
+        --glass-bg: rgba(22, 27, 34, 0.6);
+        --border-color: rgba(88, 166, 255, 0.3);
+        --text-primary: #e6edf3;
+        --text-secondary: #c9d1d9;
+        --accent-primary: #79c0ff;
+        --accent-glow: #a5d6ff;
+        --color-success: #2ea043;
+        --color-success-glow: #3ad856;
+        --color-danger: #f85149;
+        --color-warning: #ffab40;
+        --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+        --border-radius: 12px;
+        --animation-speed: 0.3s;
+    }
 
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-        
-        /* --- Base & Animated Background --- */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: var(--font-family);
-            background: linear-gradient(315deg, var(--bg-animated-1), var(--bg-animated-2), var(--bg-animated-3), var(--bg-animated-4));
-            background-size: 400% 400%;
-            animation: gradient-flow 15s ease infinite;
-            color: var(--text-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        @keyframes gradient-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-        /* --- Main Container --- */
-        .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
-        h1 { color: white; font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-primary); animation: text-flicker 3s infinite alternate; text-align: center; }
-        @keyframes text-flicker { 0% { opacity: 0.8; } 100% { opacity: 1; } }
-        
-        /* --- Input Form & Button Styling --- */
-        .lookup-form { display: flex; gap: 15px; width: 100%; max-width: 500px; }
-        input[type="text"] { flex-grow: 1; padding: 14px 20px; font-size: 16px; border-radius: var(--border-radius); border: 2px solid var(--border-color); outline: none; background-color: var(--glass-bg); color: var(--text-primary); backdrop-filter: blur(5px); transition: border-color var(--animation-speed) ease, box-shadow var(--animation-speed) ease; }
-        input[type="text"]:focus { border-color: var(--accent-primary); box-shadow: 0 0 15px var(--accent-glow); }
-        button { padding: 14px 28px; font-size: 16px; cursor: pointer; background-image: linear-gradient(45deg, var(--color-success), var(--color-success-glow)); background-size: 200% auto; border: none; color: white; border-radius: var(--border-radius); transition: all var(--animation-speed) ease; font-weight: bold; box-shadow: 0 0 10px rgba(46, 160, 67, 0.5); position: relative; overflow: hidden; }
-        button:hover { background-position: right center; transform: scale(1.05); box-shadow: 0 0 20px var(--color-success-glow); }
-        button:disabled { cursor: not-allowed; filter: grayscale(0.6); }
-        .button-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* --- Results Area with Glassmorphism --- */
-        #result { width: 100%; padding: 30px; background: var(--glass-bg); border-radius: 16px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(10px); border: 1px solid var(--border-color); opacity: 0; transform: scale(0.95); transition: opacity 0.5s ease, transform 0.5s ease; }
-        #result.visible { opacity: 1; transform: scale(1); }
-        .result-content { width: 100%; }
-        .message { font-weight: bold; font-size: 1.2rem; text-align: center; }
-        .error { color: var(--color-danger); text-shadow: 0 0 5px var(--color-danger); }
-        
-        /* --- Animated Result Details --- */
-        .field { display: grid; grid-template-columns: 200px 1fr; gap: 15px; padding: 12px 0; border-bottom: 1px solid var(--border-color); opacity: 0; transform: translateY(20px); animation: fade-in-up 0.5s ease forwards; }
-        .field:last-child { border-bottom: none; }
-        @keyframes fade-in-up { to { opacity: 1; transform: translateY(0); } }
-        .label { font-weight: 700; color: var(--accent-primary); display: flex; align-items: center; gap: 8px; }
-        .value { word-break: break-all; align-self: center; }
-        a { color: var(--accent-glow); text-decoration: none; font-weight: bold; transition: text-shadow var(--animation-speed) ease; }
-        a:hover { text-decoration: underline; text-shadow: 0 0 5px var(--accent-glow); }
-        h3 { color: white; margin-bottom: 15px; padding-bottom: 10px; position: relative; overflow: hidden; }
-        h3::after { content: ''; position: absolute; bottom: 0; left: -100%; width: 100%; height: 2px; background-image: linear-gradient(90deg, transparent, var(--accent-primary), transparent); animation: slide-in 1s forwards; animation-delay: 0.5s; }
-        @keyframes slide-in { to { left: 0; } }
-        pre { background: rgba(0,0,0,0.4); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color); color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-top: 20px; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: var(--font-family);
+        background: linear-gradient(315deg, var(--bg-animated-1), var(--bg-animated-2), var(--bg-animated-3), var(--bg-animated-4));
+        background-size: 400% 400%;
+        animation: gradient-flow 15s ease infinite;
+        color: var(--text-primary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+    @keyframes gradient-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* --- CSS ΓΙΑ ΤΑ STATUS BADGES --- */
-        .status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; text-transform: capitalize; border: 1px solid transparent; }
-        .status-approved { color: var(--color-success-glow); background-color: rgba(58, 216, 86, 0.15); border-color: rgba(58, 216, 86, 0.4); }
-        .status-in-review { color: var(--color-warning); background-color: rgba(255, 171, 64, 0.15); border-color: rgba(255, 171, 64, 0.4); }
-        .status-rejected { color: var(--color-danger); background-color: rgba(248, 81, 73, 0.15); border-color: rgba(248, 81, 73, 0.4); }
-        .status-active { color: var(--color-danger); background-color: rgba(248, 81, 73, 0.15); border-color: rgba(248, 81, 73, 0.4); }
-        .status-inactive { color: var(--accent-primary); background-color: rgba(88, 166, 255, 0.15); border-color: rgba(88, 166, 255, 0.4); }
-        
-        /* <-- ΝΕΑ ΚΛΑΣΗ ΓΙΑ ΤΟ REVIEWED --> */
-        .status-reviewed { color: var(--accent-primary); background-color: rgba(88, 166, 255, 0.15); border-color: rgba(88, 166, 255, 0.4); }
-        
-        /* --- Responsive Design --- */
-        @media (max-width: 600px) {
-            .lookup-form { flex-direction: column; }
-            .field { grid-template-columns: 1fr; gap: 5px; }
-        }
-    </style>
+    .container { width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+    h1 { color: white; font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-primary); animation: text-flicker 3s infinite alternate; text-align: center; }
+    @keyframes text-flicker { 0% { opacity: 0.8; } 100% { opacity: 1; } }
+
+    .lookup-form { display: flex; gap: 15px; width: 100%; max-width: 500px; }
+    input[type="text"] { flex-grow: 1; padding: 14px 20px; font-size: 16px; border-radius: var(--border-radius); border: 2px solid var(--border-color); outline: none; background-color: var(--glass-bg); color: var(--text-primary); backdrop-filter: blur(5px); transition: border-color var(--animation-speed) ease, box-shadow var(--animation-speed) ease; }
+    input[type="text"]:focus { border-color: var(--accent-primary); box-shadow: 0 0 15px var(--accent-glow); }
+    button { padding: 14px 28px; font-size: 16px; cursor: pointer; background-image: linear-gradient(45deg, var(--color-success), var(--color-success-glow)); background-size: 200% auto; border: none; color: white; border-radius: var(--border-radius); transition: all var(--animation-speed) ease; font-weight: bold; box-shadow: 0 0 10px rgba(46, 160, 67, 0.5); position: relative; overflow: hidden; }
+    button:hover { background-position: right center; transform: scale(1.05); box-shadow: 0 0 20px var(--color-success-glow); }
+    button:disabled { cursor: not-allowed; filter: grayscale(0.6); }
+    .button-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #result { width: 100%; padding: 30px; background: var(--glass-bg); border-radius: 16px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); backdrop-filter: blur(10px); border: 1px solid var(--border-color); opacity: 0; transform: scale(0.95); transition: opacity 0.5s ease, transform 0.5s ease; }
+    #result.visible { opacity: 1; transform: scale(1); }
+    .result-content { width: 100%; }
+    .message { font-weight: bold; font-size: 1.2rem; text-align: center; }
+    .error { color: var(--color-danger); text-shadow: 0 0 5px var(--color-danger); }
+
+    .field { display: grid; grid-template-columns: 200px 1fr; gap: 15px; padding: 12px 0; border-bottom: 1px solid var(--border-color); opacity: 0; transform: translateY(20px); animation: fade-in-up 0.5s ease forwards; }
+    .field:last-child { border-bottom: none; }
+    @keyframes fade-in-up { to { opacity: 1; transform: translateY(0); } }
+    .label { font-weight: 700; color: var(--accent-primary); display: flex; align-items: center; gap: 8px; }
+    .value { word-break: break-all; align-self: center; }
+    a { color: var(--accent-glow); text-decoration: none; font-weight: bold; transition: text-shadow var(--animation-speed) ease; }
+    a:hover { text-decoration: underline; text-shadow: 0 0 5px var(--accent-glow); }
+    h3 { color: white; margin-bottom: 15px; padding-bottom: 10px; position: relative; overflow: hidden; }
+    h3::after { content: ''; position: absolute; bottom: 0; left: -100%; width: 100%; height: 2px; background-image: linear-gradient(90deg, transparent, var(--accent-primary), transparent); animation: slide-in 1s forwards; animation-delay: 0.5s; }
+    @keyframes slide-in { to { left: 0; } }
+
+    .status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; text-transform: capitalize; border: 1px solid transparent; cursor: pointer; }
+    .status-approved { color: var(--color-success-glow); background-color: rgba(58, 216, 86, 0.15); border-color: rgba(58, 216, 86, 0.4); }
+    .status-in-review { color: var(--color-warning); background-color: rgba(255, 171, 64, 0.15); border-color: rgba(255, 171, 64, 0.4); }
+    .status-rejected { color: var(--color-danger); background-color: rgba(248, 81, 73, 0.15); border-color: rgba(248, 81, 73, 0.4); }
+    .status-active { color: var(--color-danger); background-color: rgba(248, 81, 73, 0.15); border-color: rgba(248, 81, 73, 0.4); }
+    .status-inactive { color: var(--accent-primary); background-color: rgba(88, 166, 255, 0.15); border-color: rgba(88, 166, 255, 0.4); }
+    .status-reviewed { color: var(--accent-primary); background-color: rgba(88, 166, 255, 0.15); border-color: rgba(88, 166, 255, 0.4); }
+
+    @media (max-width: 600px) { .lookup-form { flex-direction: column; } .field { grid-template-columns: 1fr; gap: 5px; } }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Epic Games Sanction Lookup</h1>
-        <div class="lookup-form">
-            <input type="text" id="sanctionId" placeholder="Enter sanction ID here">
-            <button id="lookupBtn">Lookup</button>
-        </div>
-        <div id="result"></div>
+<div class="container">
+    <h1>Epic Games Sanction Lookup</h1>
+    <div class="lookup-form">
+        <input type="text" id="sanctionId" placeholder="Enter sanction ID here">
+        <button id="lookupBtn">Lookup</button>
     </div>
+    <div style="margin-top: 10px; text-align: center;">
+        <a href="https://safety.epicgames.com/en-US/sanctions-and-appeals/my-sanctions-and-appeals" target="_blank" class="status-badge status-approved">
+            Get Your Sanction ID
+        </a>
+    </div>
+    <div id="result"></div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sanctionIdInput = document.getElementById('sanctionId');
-            const lookupBtn = document.getElementById('lookupBtn');
-            const resultDiv = document.getElementById('result');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const sanctionIdInput = document.getElementById('sanctionId');
+    const lookupBtn = document.getElementById('lookupBtn');
+    const resultDiv = document.getElementById('result');
 
-            const formatDate = (isoStr) => isoStr ? new Date(isoStr).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'medium' }) : '—';
-            const daysUntil = (dateStr) => {
-                if (!dateStr) return '—';
-                const diff = new Date(dateStr) - new Date();
-                if (diff < 0) return 'Expired';
-                return `${Math.ceil(diff / (1000 * 60 * 60 * 24))} day(s) remaining`;
-            };
+    const formatDate = (isoStr) => isoStr ? new Date(isoStr).toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'medium' }) : '—';
+    const daysUntil = (dateStr) => { if (!dateStr) return '—'; const diff = new Date(dateStr) - new Date(); return diff < 0 ? 'Expired' : `${Math.ceil(diff / (1000 * 60 * 60 * 24))} day(s) remaining`; };
+    const showState = (element, makeVisible = true) => { resultDiv.innerHTML = ''; resultDiv.appendChild(element); if (makeVisible) resultDiv.classList.add('visible'); else resultDiv.classList.remove('visible'); };
+    const showMessage = (message, type = 'info') => { const p = document.createElement('p'); p.className = `message ${type}`; p.textContent = message; showState(p); };
 
-            const showState = (element, makeVisible = true) => {
-                resultDiv.innerHTML = '';
-                resultDiv.appendChild(element);
-                if (makeVisible) resultDiv.classList.add('visible');
-                else resultDiv.classList.remove('visible');
-            };
+    const createStatusBadge = (status) => {
+        const badge = document.createElement('span');
+        if (!status) { badge.textContent = '—'; return badge; }
+        badge.className = 'status-badge';
+        switch (status.toLowerCase()) {
+            case 'in_review': badge.classList.add('status-in-review'); break;
+            case 'approved': case 'accepted': badge.classList.add('status-approved'); break;
+            case 'rejected': case 'denied': badge.classList.add('status-rejected'); break;
+            case 'reviewed': badge.classList.add('status-reviewed'); break;
+        }
+        badge.textContent = status.replace(/_/g, ' ');
+        return badge;
+    };
 
-            const showMessage = (message, type = 'info') => {
-                const p = document.createElement('p');
-                p.className = `message ${type}`;
-                p.textContent = message;
-                showState(p);
-            };
+    const createActiveBadge = (isActive) => { const badge = document.createElement('span'); badge.className = 'status-badge'; if (isActive) { badge.classList.add('status-active'); badge.textContent = 'Active'; } else { badge.classList.add('status-inactive'); badge.textContent = 'Inactive'; } return badge; };
 
-            const createStatusBadge = (status) => {
-                const badge = document.createElement('span');
-                if (!status) {
-                    badge.textContent = '—';
-                    return badge;
-                }
-                badge.className = 'status-badge';
-                switch (status.toLowerCase()) {
-                    case 'in_review': badge.classList.add('status-in-review'); break;
-                    case 'approved': case 'accepted': badge.classList.add('status-approved'); break;
-                    case 'rejected': case 'denied': badge.classList.add('status-rejected'); break;
-                    
-                    /* <-- Η ΝΕΑ ΠΡΟΣΘΗΚΗ ΕΙΝΑΙ ΕΔΩ --> */
-                    case 'reviewed': badge.classList.add('status-reviewed'); break;
-                }
-                badge.textContent = status.replace(/_/g, ' ');
-                return badge;
-            };
-            
-            const createActiveBadge = (isActive) => {
-                const badge = document.createElement('span');
-                badge.className = 'status-badge';
-                if (isActive) {
-                    badge.classList.add('status-active');
-                    badge.textContent = 'Active';
-                } else {
-                    badge.classList.add('status-inactive');
-                    badge.textContent = 'Inactive';
-                }
-                return badge;
-            };
-            
-            const createDetailItem = (label, valueOrNode) => {
-                const fieldDiv = document.createElement('div');
-                fieldDiv.className = 'field';
-                const labelSpan = document.createElement('span');
-                labelSpan.className = 'label';
-                labelSpan.textContent = `${label}:`;
-                const valueSpan = document.createElement('span');
-                valueSpan.className = 'value';
-                if (valueOrNode instanceof HTMLElement) {
-                    valueSpan.appendChild(valueOrNode);
-                } else {
-                    valueSpan.innerHTML = valueOrNode || '—';
-                }
-                fieldDiv.append(labelSpan, valueSpan);
-                return fieldDiv;
-            };
+    const createBooleanBadge = (value) => { const badge = document.createElement('span'); badge.className = 'status-badge'; if (value) { badge.classList.add('status-approved'); badge.textContent = 'Yes'; } else { badge.classList.add('status-rejected'); badge.textContent = 'No'; } return badge; };
 
-            const renderResults = (data) => {
-                const content = document.createElement('div');
-                content.className = 'result-content';
-                if (!data || !data.sanctions || data.sanctions.length === 0) {
-                    showMessage('No sanctions found for this ID.', 'error');
-                    return;
-                }
-                const s = data.sanctions[0];
-                const detailsHeader = document.createElement('h3');
-                detailsHeader.textContent = 'Sanction Details';
-                content.appendChild(detailsHeader);
-                
-                const details = [
-                    createDetailItem('Sanction ID', s.id),
-                    createDetailItem('Created At', formatDate(s.created_at)),
-                    createDetailItem('Expires', `${formatDate(s.expires)} (${daysUntil(s.expires)})`),
-                    createDetailItem('Type', s.type?.name),
-                    createDetailItem('Description', s.type?.description),
-                    createDetailItem('Active', createActiveBadge(s.tas_status_active))
-                ];
-                details.forEach(el => content.appendChild(el));
+    const createDetailItem = (label, valueOrNode) => {
+        const fieldDiv = document.createElement('div'); fieldDiv.className = 'field';
+        const labelSpan = document.createElement('span'); labelSpan.className = 'label'; labelSpan.textContent = `${label}:`;
+        const valueSpan = document.createElement('span'); valueSpan.className = 'value';
+        if (valueOrNode instanceof HTMLElement) valueSpan.appendChild(valueOrNode); else valueSpan.innerHTML = valueOrNode || '—';
+        fieldDiv.append(labelSpan, valueSpan); return fieldDiv;
+    };
 
-                const infoHeader = document.createElement('h3');
-                infoHeader.textContent = 'Additional Information';
-                content.appendChild(infoHeader);
-                
-                const additionalInfo = [
-                    createDetailItem('Appeal Can Be Created', data.appeal_can_be_created),
-                    createDetailItem('Appeal Review Status', createStatusBadge(data.appeal_review_status)),
-                    data.legal_ground?.url ? createDetailItem('Legal Ground', `<a href="${data.legal_ground.url}" target="_blank" rel="noopener noreferrer">View Document</a>`) : null
-                ].filter(Boolean);
-                additionalInfo.forEach(el => content.appendChild(el));
-                
-                showState(content);
-                
-                content.querySelectorAll('.field').forEach((field, index) => {
-                    field.style.animationDelay = `${index * 100}ms`;
-                });
-            };
+    const renderResults = (data) => {
+        const content = document.createElement('div'); content.className = 'result-content';
+        if (!data || !data.sanctions || data.sanctions.length === 0) { showMessage('No sanctions found for this ID.', 'error'); return; }
+        const s = data.sanctions[0];
+        const detailsHeader = document.createElement('h3'); detailsHeader.textContent = 'Sanction Details'; content.appendChild(detailsHeader);
 
-            const fetchSanction = async () => {
-                const id = sanctionIdInput.value.trim();
-                if (!id) {
-                    showMessage('Please enter a sanction ID.', 'error');
-                    return;
-                }
-                lookupBtn.disabled = true;
-                lookupBtn.innerHTML = '<span class="button-spinner"></span>';
-                resultDiv.classList.remove('visible');
-                try {
-                    const url = `https://safety.epicgames.com/api/slate/details?locale=en-US&role=sanctioned_user&sanction_id=${encodeURIComponent(id)}`;
-                    const proxy = 'https://corsproxy.io/?';
-                    const response = await fetch(proxy + encodeURIComponent(url));
-                    if (!response.ok) throw new Error(`API Error: ${response.status}`);
-                    const data = await response.json();
-                    renderResults(data);
-                } catch (err) {
-                    showMessage(`Failed to fetch data. ${err.message}`, 'error');
-                } finally {
-                    lookupBtn.disabled = false;
-                    lookupBtn.innerHTML = 'Lookup';
-                }
-            };
-            
-            lookupBtn.addEventListener('click', fetchSanction);
-            sanctionIdInput.addEventListener('keydown', (e) => e.key === 'Enter' && fetchSanction());
-        });
-    </script>
+        const details = [
+            createDetailItem('Sanction ID', s.id),
+            createDetailItem('Created At', formatDate(s.created_at)),
+            createDetailItem('Expires', `${formatDate(s.expires)} (${daysUntil(s.expires)})`),
+            createDetailItem('Type', s.type?.name),
+            createDetailItem('Description', s.type?.description),
+            createDetailItem('Active', createActiveBadge(s.tas_status_active))
+        ];
+        details.forEach(el => content.appendChild(el));
+
+        const infoHeader = document.createElement('h3'); infoHeader.textContent = 'Additional Information'; content.appendChild(infoHeader);
+
+        const additionalInfo = [
+            createDetailItem('Appeal Can Be Created', createBooleanBadge(data.appeal_can_be_created)),
+            createDetailItem('Appeal Review Status', createStatusBadge(data.appeal_review_status)),
+            data.legal_ground?.url ? createDetailItem('Legal Ground', `<a href="${data.legal_ground.url}" target="_blank" rel="noopener noreferrer">View Document</a>`) : null
+        ].filter(Boolean);
+        additionalInfo.forEach(el => content.appendChild(el));
+
+        showState(content);
+        content.querySelectorAll('.field').forEach((field, index) => { field.style.animationDelay = `${index * 100}ms`; });
+    };
+
+    const fetchSanction = async () => {
+        const id = sanctionIdInput.value.trim();
+        if (!id) { showMessage('Please enter a sanction ID.', 'error'); return; }
+        lookupBtn.disabled = true; lookupBtn.innerHTML = '<span class="button-spinner"></span>'; resultDiv.classList.remove('visible');
+        try {
+            const url = `https://safety.epicgames.com/api/slate/details?locale=en-US&role=sanctioned_user&sanction_id=${encodeURIComponent(id)}`;
+            const proxy = 'https://corsproxy.io/?';
+            const response = await fetch(proxy + encodeURIComponent(url));
+            if (!response.ok) throw new Error(`API Error: ${response.status}`);
+            const data = await response.json(); renderResults(data);
+        } catch (err) { showMessage(`Failed to fetch data. ${err.message}`, 'error'); } finally { lookupBtn.disabled = false; lookupBtn.innerHTML = 'Lookup'; }
+    };
+
+    lookupBtn.addEventListener('click', fetchSanction);
+    sanctionIdInput.addEventListener('keydown', (e) => e.key === 'Enter' && fetchSanction());
+});
+</script>
 </body>
 </html>
