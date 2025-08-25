@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Epic Games Sanction Lookup</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#0d1117; color:#e6edf3; padding:20px; }
+    h1 { color:#58a6ff; }
+    input, button { padding:8px; font-size:16px; }
+    button { cursor:pointer; background:#238636; border:none; color:white; border-radius:5px; }
+    button:hover { background:#2ea043; }
+    #result { margin-top:20px; padding:15px; background:#161b22; border-radius:10px; }
+    .error { color:#ff7b72; }
+    .field { margin-bottom:10px; }
+    .label { font-weight:bold; color:#58a6ff; }
+    a { color:#58a6ff; }
+  </style>
+</head>
+<body>
+  <h1>Epic Games Sanction Lookup</h1>
+  <p>Enter a sanction ID to fetch sanction details:</p>
+  <input type="text" id="sanctionId" placeholder="Enter sanction ID here" size="50">
+  <button onclick="fetchSanction()">Lookup</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function fetchSanction() {
+      const id = document.getElementById('sanctionId').value.trim();
+      const resultDiv = document.getElementById('result');
+      if (!id) {
+        resultDiv.innerHTML = '<p class="error">Please enter a sanction ID.</p>';
+        return;
+      }
+
+      resultDiv.innerHTML = '<p>Loading...</p>';
+      try {
+        const url = `https://safety.epicgames.com/api/slate/details?locale=en-US&role=sanctioned_user&sanction_id=${encodeURIComponent(id)}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+
+        // Render formatted sanction info
+        let html = `<h3>Sanction Details</h3>`;
+
+        if (data.sanctions && data.sanctions.length > 0) {
+          const s = data.sanctions[0];
+          html += `
+            <div class="field"><span class="label">Sanction ID:</span> ${s.id}</div>
+            <div class="field"><span class="label">Created At:</span> ${s.created_at}</div>
+            <div class="field"><span class="label">Expires:</span> ${s.expires}</div>
+            <div class="field"><span class="label">Revoked At:</span> ${s.revoked_at || '—'}</div>
+            <div class="field"><span class="label">Type:</span> ${s.type?.name || '—'}</div>
+            <div class="field"><span class="label">Description:</span> ${s.type?.description || '—'}</div>
+            <div class="field"><span class="label">Sanction Type ID:</span> ${s.sanction_type_id}</div>
+            <div class="field"><span class="label">Active:</span> ${s.tas_status_active}</div>
+          `;
+        }
+
+        html += `<div class="field"><span class="label">Appeal Can Be Created:</span> ${data.appeal_can_be_created}</div>`;
+        html += `<div class="field"><span class="label">Appeal Review Status:</span> ${data.appeal_review_status || '—'}</div>`;
+        html += `<div class="field"><span class="label">Infraction ID:</span> ${data.infraction_id}</div>`;
+        html += `<div class="field"><span class="label">Decision Ground:</span> ${data.decision_ground}</div>`;
+        html += `<div class="field"><span class="label">Moderation Means:</span> ${data.moderation_means}</div>`;
+        html += `<div class="field"><span class="label">Legal Ground:</span> ${data.legal_ground?.title || '—'} (<a href="${data.legal_ground?.url}" target="_blank">View</a>)</div>`;
+
+        if (data.history && data.history.length > 0) {
+          html += `<h4>History</h4>`;
+          data.history.forEach(h => {
+            html += `<div class="field">${h.created_at} – ${h.event}</div>`;
+          });
+        }
+
+        resultDiv.innerHTML = html;
+      } catch (err) {
+        resultDiv.innerHTML = `<p class="error">${err.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
